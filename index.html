@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b4fa8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Задачи">
+<title>Задачи LAZA</title>
+<script>
+/* ======================= НАСТРОЙКИ ======================= */
+const CFG = {
+  // Адрес моста «LAZA бот задач — мост» (Google Apps Script, заканчивается на /exec)
+  API_URL: 'https://script.google.com/macros/s/AKfycbxBGexI6MZ3JQjMX0Bsi57FQfEGbEucEVtmCIfa66WOPuyxtVOtEE_Z35436RVy4p1O/exec',
+  TIMEOUT_SEC: 40,     // сколько ждать ответа сервера
+  REFRESH_SEC: 60      // как часто обновлять список задач, пока приложение открыто
+};
+/* ========================================================= */
+</script>
+<style>
+  :root{
+    --bg:#eef1f5; --card:#fff; --text:#0a0a0a; --muted:#3f4652; --line:#b9c0cc;
+    --pri:#0b4fa8; --pri-bg:#e2ecff; --ok:#0a7d32; --ok-bg:#dcf3e3; --bad:#c4161c; --bad-bg:#ffe3e3;
+    --warn:#7a4300; --warn-bg:#fff0c7; --warn-line:#d99a00;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--text);font:19px/1.35 system-ui,-apple-system,Roboto,"Segoe UI",sans-serif}
+  button,input,textarea{font:inherit;color:inherit}
+  button{cursor:pointer}
+  .top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:8px 12px;padding-top:max(8px,env(safe-area-inset-top));background:var(--pri);color:#fff;min-height:72px}
+  .top h1{flex:1;margin:0;font-size:21px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .top .tb{min-height:52px;min-width:56px;padding:0 12px;border:3px solid #fff;border-radius:14px;background:transparent;color:#fff;font-weight:800;font-size:18px;flex:none}
+  .wrap{max-width:820px;margin:0 auto;padding:14px 14px calc(28px + env(safe-area-inset-bottom))}
+  .who{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:2px 4px 14px;color:var(--muted);font-size:17px;flex-wrap:wrap}
+  .who b{color:var(--text)}
+  .tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .tile{min-height:150px;border-radius:20px;background:var(--card);border:3px solid var(--line);font-size:24px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:12px;text-align:center}
+  .tile .ic{font-size:46px;line-height:1}
+  .tile small{font-size:17px;font-weight:600;color:var(--muted)}
+  .tile small.bad{color:var(--bad)}
+  .tile:active{background:var(--pri-bg);border-color:var(--pri)}
+  .card{background:var(--card);border-radius:16px;border:2px solid var(--line);padding:16px;margin-bottom:14px}
+  .card.late{border:3px solid var(--bad)}
+  .card.done{opacity:.75}
+  .lbl{font-size:19px;font-weight:800;margin:0 0 10px}
+  .hint{font-size:17px;color:var(--muted);margin-top:8px}
+  .btn{min-height:64px;padding:10px 20px;border-radius:14px;border:3px solid var(--pri);background:var(--card);color:var(--pri);font-weight:800;font-size:20px}
+  .btn.pri{background:var(--pri);color:#fff}
+  .btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+  .btn.warn{background:var(--card);border-color:var(--warn-line);color:var(--warn)}
+  .btn:disabled{background:#d6dae1;border-color:#d6dae1;color:#5d6470;cursor:not-allowed}
+  .btn.wide{width:100%}
+  .row{display:flex;gap:10px;flex-wrap:wrap}.row>.btn{flex:1 1 150px}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+  .chip{min-height:56px;padding:8px 16px;border-radius:14px;border:3px solid var(--line);background:var(--card);font-size:18px;font-weight:700}
+  .chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+  .chip .n{opacity:.8;margin-left:4px}
+  .opt{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:66px;padding:10px 14px;margin-bottom:10px;border:3px solid var(--line);border-radius:14px;background:var(--card);text-align:left}
+  .opt.on{border-color:var(--pri);background:var(--pri-bg)}
+  .opt .nm{font-weight:700;font-size:20px}
+  .opt .sub{font-size:16px;color:var(--muted);margin-top:2px}
+  .opt .mk{font-size:26px;font-weight:900;color:var(--pri);flex:none}
+  .opt.off{opacity:.55}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .tag{display:inline-block;font-size:15px;font-weight:800;padding:3px 9px;border-radius:8px;background:#e9edf3;color:var(--muted)}
+  .tag.bad{background:var(--bad-bg);color:var(--bad)} .tag.warn{background:var(--warn-bg);color:var(--warn)}
+  .tag.ok{background:var(--ok-bg);color:var(--ok)} .tag.pri{background:var(--pri-bg);color:var(--pri)}
+  .ttl{font-size:21px;font-weight:800;margin:0 0 6px;overflow-wrap:anywhere}
+  .desc{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--muted);font-size:18px;margin-bottom:8px}
+  .meta{font-size:16px;color:var(--muted);margin-bottom:12px}
+  .grp{font-size:19px;font-weight:800;margin:20px 4px 10px;display:flex;justify-content:space-between}
+  textarea.f,input.f{width:100%;border:3px solid var(--line);border-radius:14px;background:var(--card);padding:12px 14px;font-size:20px}
+  textarea.f{min-height:110px;resize:vertical}
+  textarea.f:focus,input.f:focus{outline:none;border-color:var(--pri)}
+  .empty{text-align:center;color:var(--muted);padding:28px 10px;font-size:19px}
+  .pinbox{font-size:52px;letter-spacing:18px;text-align:center;min-height:80px;border:3px solid var(--pri);border-radius:14px;margin-bottom:14px;padding:6px;background:var(--card)}
+  .keys{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .key{min-height:74px;font-size:32px;font-weight:800;border-radius:14px;border:2px solid var(--line);background:#f5f6f8}
+  .key:active{background:var(--pri-bg)}
+  .key.alt{font-size:22px;background:#e9edf3}
+  #layer .ov{position:fixed;inset:0;z-index:20;background:rgba(10,20,40,.5);display:flex;align-items:center;justify-content:center;padding:16px}
+  #layer .box{background:var(--card);border-radius:20px;padding:22px;max-width:480px;width:100%}
+  .spin{width:64px;height:64px;border-radius:50%;border:7px solid #d6dfef;border-top-color:var(--pri);animation:s .9s linear infinite;margin:6px auto 16px}
+  @keyframes s{to{transform:rotate(360deg)}}
+  .center{text-align:center}
+  .big-ok{font-size:32px;font-weight:900;color:var(--ok);margin:0 0 10px}
+  .big-bad{font-size:30px;font-weight:900;color:var(--bad);margin:0 0 10px}
+  .msg{font-size:19px;margin-bottom:16px}
+  .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#13222a;color:#fff;padding:14px 18px;border-radius:14px;z-index:30;font-size:18px;font-weight:600;max-width:calc(100% - 28px);text-align:center}
+  .upd{font-size:15px;color:var(--muted);text-align:center;margin-top:18px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="toast"></div>
+
+<script>
+/* ---------------- служебное ---------------- */
+function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return null; } }
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+const $ = s => document.querySelector(s);
+function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+const today = () => iso(new Date());
+const plusDays = n => { const d = new Date(); d.setDate(d.getDate() + n); return iso(d); };
+
+/* ---------------- язык ---------------- */
+let LANG = ls('zadachi_lang') === 'uz' ? 'uz' : 'ru';
+const UZ = {
+  'Задачи': 'Vazifalar', 'Мои задачи': 'Mening vazifalarim', 'Все задачи': 'Barcha vazifalar', 'Задачи команды': 'Jamoa vazifalari',
+  'Поставить задачу': 'Vazifa berish', 'Рассылка': 'Xabar yuborish', 'Рассылка сотрудникам': 'Xodimlarga xabar',
+  'Кто вы?': 'Siz kimsiz?', 'Введите ПИН-код': 'PIN-kodni kiriting', 'Войти': 'Kirish', 'Очистить': 'Tozalash',
+  '← Другое имя': '← Boshqa ism', 'Выйти': 'Chiqish', 'Назад': 'Orqaga',
+  'ПИН-код выдаёт руководитель.': 'PIN-kodni rahbar beradi.',
+  'Пока никому не задан ПИН. Руководитель задаёт ПИН в CRM → «Команда» → карточка сотрудника.': "Hali hech kimga PIN berilmagan. Rahbar PINni CRM → «Jamoa» → xodim kartasida beradi.",
+  'К выполнению': 'Bajarilishi kerak', 'В работе': 'Jarayonda', 'Готово': 'Bajarildi', 'Открытые': 'Ochiq', 'Просрочено': "Muddati o'tgan",
+  'Срочно': 'Shoshilinch', 'Обычно': 'Oddiy', 'Не спеша': 'Shoshilmasdan',
+  '▶️ Начать': '▶️ Boshlash', '✅ Готово': '✅ Bajarildi', '↩ Вернуть в работу': '↩ Qayta ochish',
+  'Сегодня': 'Bugun', 'Завтра': 'Ertaga', 'Через неделю': 'Bir haftadan keyin', 'Без срока': 'Muddatsiz', 'Другая дата': 'Boshqa sana',
+  'срок': 'muddat', 'просрочено': "muddati o'tgan", 'от': 'kimdan', 'Проект': 'Loyiha',
+  'Открытых задач нет 🎉': "Ochiq vazifalar yo'q 🎉", 'Выполненных за 3 дня нет.': "So'nggi 3 kunda bajarilganlar yo'q.", 'Задач нет.': "Vazifalar yo'q.",
+  'Все': 'Hammasi', 'Без исполнителя': 'Ijrochisiz',
+  'Кому': 'Kimga', 'Что сделать': 'Nima qilish kerak', 'Подробности': 'Tafsilotlar', 'Срок': 'Muddat', 'Важность': 'Muhimligi',
+  'необязательно': 'ixtiyoriy', 'Например: принять молоко от поставщика и проверить жирность': "Masalan: yetkazib beruvchidan sutni qabul qilib, yog'liligini tekshirish",
+  'нет Telegram — увидит только в приложении': "Telegram yo'q — faqat ilovada ko'radi",
+  'Выберите, кому поставить задачу.': 'Vazifa kimga berilishini tanlang.', 'Напишите, что нужно сделать.': 'Nima qilish kerakligini yozing.',
+  'Задача поставлена': 'Vazifa berildi', 'получит её в Telegram и увидит в приложении.': "uni Telegramda oladi va ilovada ko'radi.",
+  'увидит её в приложении.': "uni ilovada ko'radi.", 'Ещё задачу': 'Yana vazifa', 'К задачам': 'Vazifalarga',
+  'Текст': 'Matn', 'Получатели': 'Qabul qiluvchilar', 'Всем': 'Hammaga', 'Снять всё': 'Hammasini olib tashlash',
+  'Отправить в Telegram': 'Telegramga yuborish', 'Напишите текст сообщения.': 'Xabar matnini yozing.',
+  'Выберите получателей.': 'Qabul qiluvchilarni tanlang.', 'Отправлено': 'Yuborildi',
+  'Бот задач разошлёт сообщение в течение 20 секунд. Получателей:': "Vazifalar boti xabarni 20 soniya ichida yuboradi. Qabul qiluvchilar:",
+  'Сообщение придёт сотрудникам в бот задач LAZA. Сотрудники без Telegram id в списке не показаны.': "Xabar xodimlarga LAZA vazifalar botiga keladi. Telegram id'si yo'q xodimlar ro'yxatda ko'rsatilmagan.",
+  'Например: завтра в 9:00 инвентаризация склада. Всем быть к 8:45.': "Masalan: ertaga soat 9:00 da ombor inventarizatsiyasi. Hamma 8:45 gacha kelsin.",
+  'Загрузка…': 'Yuklanmoqda…', 'Сохраняю…': 'Saqlanmoqda…', 'Проверяю…': 'Tekshirilmoqda…', 'Отправляю…': 'Yuborilmoqda…',
+  'Понятно': 'Tushunarli', 'Повторить': 'Qayta urinish', 'Отмена': 'Bekor qilish', 'Ошибка': 'Xato',
+  'Нет связи с интернетом.': "Internet aloqasi yo'q.", 'Сервер не ответил. Проверьте интернет и попробуйте ещё раз.': "Server javob bermadi. Internetni tekshirib, qayta urinib ko'ring.",
+  'Неверный ПИН.': "PIN noto'g'ri.", 'Осталось попыток:': 'Qolgan urinishlar:',
+  'Слишком много неверных ПИНов. Подождите 10 минут.': "Noto'g'ri PIN juda ko'p kiritildi. 10 daqiqa kuting.",
+  'Вход устарел или ПИН сменили. Войдите снова.': "Kirish eskirgan yoki PIN o'zgargan. Qaytadan kiring.",
+  'Нет прав на это действие.': "Bu amal uchun ruxsat yo'q.", 'Задача не найдена — список обновлён.': 'Vazifa topilmadi — roʻyxat yangilandi.',
+  'Отмечено: В работе': 'Belgilandi: Jarayonda', 'Отмечено: Готово': 'Belgilandi: Bajarildi', 'Задача снова открыта': 'Vazifa qayta ochildi',
+  'Обновлено': 'Yangilandi', 'Задачи от CRM обновляются, пока CRM открыта на компьютере.': "CRM'dan vazifalar CRM kompyuterda ochiq bo'lganda yangilanadi.",
+  'руководитель': 'rahbar', 'откр.': 'ochiq', 'просроч.': "muddati o'tgan", 'Кто сделал': 'Kim bajardi',
+  'Сотрудник не найден. Обновите список.': 'Xodim topilmadi. Roʻyxatni yangilang.'
+};
+const t = s => LANG === 'uz' ? (UZ[s] || s) : s;
+const MON = {ru: ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'], uz: ['yan', 'fev', 'mar', 'apr', 'may', 'iyun', 'iyul', 'avg', 'sen', 'okt', 'noy', 'dek']};
+function dueText(d) {
+  if (!d) return '';
+  if (d === today()) return t('Сегодня');
+  if (d === plusDays(1)) return t('Завтра');
+  const p = d.split('-');
+  return Number(p[2]) + ' ' + MON[LANG][Number(p[1]) - 1];
+}
+function setLang(l) { LANG = l; ls('zadachi_lang', l); document.documentElement.lang = l; document.title = l === 'uz' ? 'LAZA vazifalar' : 'Задачи LAZA'; render(); }
+
+/* ---------------- данные ---------------- */
+const S = {token: ls('zadachi_token') || '', me: null, tasks: [], staff: [], at: 0, people: null};
+try { S.me = JSON.parse(ls('zadachi_me') || 'null'); } catch (e) {}
+let SCR = S.token ? 'start' : 'login';
+let F = {};
+const ST = {todo: ['К выполнению', ''], doing: ['В работе', 'pri'], done: ['Готово', 'ok']};
+const PRI = {high: ['Срочно', 'bad'], mid: ['Обычно', ''], low: ['Не спеша', '']};
+const isLate = x => x.status !== 'done' && x.due && x.due < today();
+const ERR = {
+  bad_pin: 'Неверный ПИН.', locked: 'Слишком много неверных ПИНов. Подождите 10 минут.', auth: 'Вход устарел или ПИН сменили. Войдите снова.',
+  forbidden: 'Нет прав на это действие.', no_task: 'Задача не найдена — список обновлён.', no_title: 'Напишите, что нужно сделать.',
+  no_text: 'Напишите текст сообщения.', no_recipients: 'Выберите получателей.', no_user: 'Сотрудник не найден. Обновите список.'
+};
+
+/* ---------------- связь с мостом ---------------- */
+async function api(action, data) {
+  const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), CFG.TIMEOUT_SEC * 1000);
+  let r;
+  try {
+    r = await fetch(CFG.API_URL, {method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'}, signal: ctrl.signal,
+      body: JSON.stringify(Object.assign({action: action, token: S.token}, data || {}))});
+  } catch (e) { throw mkErr(e.name === 'AbortError' ? 'Сервер не ответил. Проверьте интернет и попробуйте ещё раз.' : 'Нет связи с интернетом.', 'net'); }
+  finally { clearTimeout(timer); }
+  let j;
+  try { j = await r.json(); } catch (e) { throw mkErr('Сервер не ответил. Проверьте интернет и попробуйте ещё раз.', 'net'); }
+  if (!j.ok) { const e = mkErr(ERR[j.error] || j.error || 'Ошибка', j.error === 'auth' ? 'auth' : j.error); e.left = j.left; throw e; }
+  return j;
+}
+function mkErr(m, kind) { const e = new Error(m); e.kind = kind; return e; }
+
+// запрос с индикатором; при обрыве связи — «Повторить»
+async function call(action, data, msg) {
+  for (;;) {
+    showLoader(msg || 'Загрузка…');
+    try { const j = await api(action, data); hideLayer(); return j; }
+    catch (e) {
+      hideLayer();
+      if (e.kind === 'auth') { logout(t(e.message)); throw e; }
+      if (e.kind === 'net' && await dialog('<div class="big-bad">' + t('Ошибка') + '</div><div class="msg">' + esc(t(e.message)) + '</div>', [[t('Отмена'), '', 0], [t('Повторить'), 'pri', 1]])) continue;
+      throw e;
+    }
+  }
+}
+async function load(quiet) {
+  if (!S.token) return;
+  try {
+    const j = quiet ? await api('app_data') : await call('app_data', null, 'Загрузка…');
+    S.me = j.me; S.tasks = j.tasks || []; S.staff = j.staff || []; S.at = Date.now();
+    ls('zadachi_me', JSON.stringify(j.me));
+    if (SCR === 'start') SCR = S.me.isManager ? 'home' : 'my';
+    render();
+  } catch (e) {
+    if (e.kind === 'auth') { if (quiet) logout(t(e.message)); return; }
+    if (SCR === 'start') { SCR = 'offline'; render(); }
+    else if (!quiet) toast(t(e.message));
+  }
+}
+function logout(msg) {
+  S.token = ''; S.me = null; S.tasks = []; S.staff = []; ls('zadachi_token', null); ls('zadachi_me', null);
+  SCR = 'login'; F = {}; S.people = null; render();
+  if (msg) dialog('<div class="msg">' + esc(msg) + '</div>', [[t('Понятно'), 'pri', 1]]);
+}
+
+/* ---------------- окна ---------------- */
+function showLoader(m) { $('#layer').innerHTML = '<div class="ov"><div class="box center"><div class="spin"></div><div class="msg">' + esc(t(m)) + '</div></div></div>'; }
+function hideLayer() { $('#layer').innerHTML = ''; }
+function dialog(html, btns) {
+  return new Promise(res => {
+    $('#layer').innerHTML = '<div class="ov"><div class="box">' + html + '<div class="row">' +
+      btns.map((b, i) => '<button class="btn ' + b[1] + '" data-dlg="' + i + '">' + esc(b[0]) + '</button>').join('') + '</div></div></div>';
+    $('#layer').querySelectorAll('[data-dlg]').forEach(el => el.onclick = () => { hideLayer(); res(btns[+el.dataset.dlg][2]); });
+  });
+}
+function toast(m) { const r = $('#toast'); r.innerHTML = '<div class="toast" role="status">' + esc(m) + '</div>'; clearTimeout(toast.h); toast.h = setTimeout(() => r.innerHTML = '', 2600); }
+
+/* ---------------- экраны ---------------- */
+const TITLE = {login: 'Задачи', start: 'Задачи', offline: 'Задачи', home: 'Задачи', my: 'Мои задачи', all: 'Задачи команды', new: 'Поставить задачу', bc: 'Рассылка'};
+function render() {
+  const back = S.me && S.me.isManager && ['my', 'all', 'new', 'bc'].indexOf(SCR) >= 0;
+  const top = '<div class="top">' + (back ? '<button class="tb" data-a="go:home" aria-label="' + t('Назад') + '">←</button>' : '') +
+    '<h1>' + esc(t(TITLE[SCR] || 'Задачи')) + '</h1>' +
+    (S.token && SCR !== 'login' ? '<button class="tb" data-a="refresh" aria-label="↻">↻</button>' : '') +
+    '<button class="tb" data-a="lang" aria-label="Til / Язык">' + (LANG === 'uz' ? 'RU' : 'UZ') + '</button></div>';
+  const body = {login: vLogin, start: vStart, offline: vOffline, home: vHome, my: vMy, all: vAll, new: vNew, bc: vBc}[SCR]();
+  $('#app').innerHTML = top + '<div class="wrap">' + body + '</div>';
+}
+function whoLine() {
+  if (!S.me) return '';
+  return '<div class="who"><span><b>' + esc(S.me.name) + '</b>' + (S.me.isManager ? ' · ' + t('руководитель') : '') + '</span>' +
+    '<button class="chip" style="min-height:44px;padding:4px 14px;font-size:16px" data-a="logout">' + t('Выйти') + '</button></div>';
+}
+function updLine() {
+  if (!S.at) return '';
+  const tm = new Date(S.at).toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'});
+  return '<div class="upd">' + t('Обновлено') + ' ' + tm + '. ' + t('Задачи от CRM обновляются, пока CRM открыта на компьютере.') + '</div>';
+}
+function vStart() { return '<div class="center" style="padding-top:60px"><div class="spin"></div><div class="msg">' + t('Загрузка…') + '</div></div>'; }
+function vOffline() { return '<div class="card center"><div class="big-bad">' + t('Ошибка') + '</div><div class="msg">' + t('Нет связи с интернетом.') + '</div><button class="btn pri wide" data-a="retry">' + t('Повторить') + '</button></div>'; }
+
+// вход: имя → ПИН
+function vLogin() {
+  if (!S.people) {
+    if (!F.loading) { F.loading = true; loadPeople(); }
+    return vStart();
+  }
+  if (!F.who) {
+    if (!S.people.length) return '<div class="card"><div class="msg">' + t('Пока никому не задан ПИН. Руководитель задаёт ПИН в CRM → «Команда» → карточка сотрудника.') + '</div><button class="btn wide" data-a="retry-people">↻ ' + t('Повторить') + '</button></div>';
+    const last = ls('zadachi_last');
+    return '<div class="lbl" style="margin-left:4px">' + t('Кто вы?') + '</div>' + S.people.map(p =>
+      '<button class="opt' + (p.id === last ? ' on' : '') + '" data-a="who:' + esc(p.id) + '"><span><div class="nm">' + esc(p.name) + '</div>' + (p.role ? '<div class="sub">' + esc(p.role) + '</div>' : '') + '</span><span class="mk">›</span></button>').join('');
+  }
+  const p = F.pin || '';
+  const who = S.people.find(x => x.id === F.who) || {};
+  return '<div class="card" style="max-width:480px;margin:6px auto"><div class="lbl">' + esc(who.name || '') + '</div><div class="hint" style="margin:-6px 0 12px">' + t('Введите ПИН-код') + '</div>' +
+    '<div class="pinbox">' + (p ? '•'.repeat(p.length) : '&nbsp;') + '</div>' +
+    '<div class="keys">' + ['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(d => '<button class="key" data-a="pin:' + d + '">' + d + '</button>').join('') +
+    '<button class="key alt" data-a="pin:clr">' + t('Очистить') + '</button><button class="key" data-a="pin:0">0</button><button class="key alt" data-a="pin:del" aria-label="⌫">⌫</button></div>' +
+    '<button class="btn ok wide" style="margin-top:14px;min-height:76px" data-a="pin:go"' + (p.length >= 4 ? '' : ' disabled') + '>' + t('Войти') + '</button>' +
+    '<button class="btn wide" style="margin-top:12px" data-a="who:">' + t('← Другое имя') + '</button>' +
+    '<div class="hint">' + t('ПИН-код выдаёт руководитель.') + '</div></div>';
+}
+async function loadPeople() {
+  try { const j = await api('app_staff'); S.people = j.staff || []; }
+  catch (e) { F.loading = false; SCR = 'offline'; F.offLogin = true; render(); return; }
+  F.loading = false; render();
+}
+async function doLogin() {
+  try {
+    const j = await call('app_login', {staffId: F.who, pin: F.pin}, 'Проверяю…');
+    S.token = j.token; S.me = j.me; ls('zadachi_token', j.token); ls('zadachi_me', JSON.stringify(j.me)); ls('zadachi_last', F.who);
+    F = {}; SCR = 'start'; render(); load();
+  } catch (e) {
+    F.pin = ''; render();
+    if (e.kind === 'net') return;
+    let m = t(e.message);
+    if (e.kind === 'bad_pin' && e.left != null) m += ' ' + t('Осталось попыток:') + ' ' + e.left;
+    dialog('<div class="big-bad">' + t('Ошибка') + '</div><div class="msg">' + esc(m) + '</div>', [[t('Понятно'), 'pri', 1]]);
+  }
+}
+
+// главная руководителя
+function vHome() {
+  const mine = S.tasks.filter(x => x.assigneeId === S.me.id && x.status !== 'done');
+  const open = S.tasks.filter(x => x.status !== 'done');
+  const late = open.filter(isLate).length;
+  return whoLine() + '<div class="tiles">' +
+    tile('go:my', '📋', 'Мои задачи', mine.length + ' ' + t('откр.'), mine.some(isLate)) +
+    tile('go:all', '👥', 'Задачи команды', open.length + ' ' + t('откр.') + (late ? ' · ' + late + ' ' + t('просроч.') : ''), late > 0) +
+    tile('go:new', '➕', 'Поставить задачу', '') +
+    tile('go:bc', '📢', 'Рассылка', '') + '</div>' + updLine();
+}
+function tile(a, ic, title, sub, bad) {
+  return '<button class="tile" data-a="' + a + '"><span class="ic">' + ic + '</span>' + esc(t(title)) + (sub ? '<small' + (bad ? ' class="bad"' : '') + '>' + esc(sub) + '</small>' : '') + '</button>';
+}
+
+// карточка задачи
+function sortTasks(list) {
+  const pr = {high: 0, mid: 1, low: 2};
+  return list.sort((a, b) => (isLate(b) - isLate(a)) || ((a.due || '9') < (b.due || '9') ? -1 : (a.due || '9') > (b.due || '9') ? 1 : 0) || (pr[a.priority] ?? 1) - (pr[b.priority] ?? 1));
+}
+function taskCard(x, showWho) {
+  const st = ST[x.status] || ST.todo, pr = PRI[x.priority] || PRI.mid, late = isLate(x);
+  const tags = '<div class="tags"><span class="tag ' + st[1] + '">' + t(st[0]) + '</span>' +
+    (x.priority === 'high' ? '<span class="tag bad">' + t(pr[0]) + '</span>' : '') +
+    (x.due ? '<span class="tag ' + (late ? 'bad' : x.due === today() ? 'warn' : '') + '">' + (late ? '⚠️ ' : '') + t('срок') + ': ' + esc(dueText(x.due)) + '</span>' : '') + '</div>';
+  const meta = [showWho ? '👤 ' + (x.assigneeName || t('Без исполнителя')) : '', x.project ? t('Проект') + ': ' + x.project : '', x.createdByName ? t('от') + ': ' + x.createdByName : '',
+    x.status === 'done' && x.statusBy ? t('Кто сделал') + ': ' + x.statusBy : ''].filter(Boolean).map(esc).join(' · ');
+  const canAct = S.me.isManager || x.assigneeId === S.me.id;
+  let btns = '';
+  if (canAct) {
+    if (x.status === 'todo' || !x.status) btns = '<button class="btn" data-a="st:' + esc(x.id) + ':doing">' + t('▶️ Начать') + '</button><button class="btn ok" data-a="st:' + esc(x.id) + ':done">' + t('✅ Готово') + '</button>';
+    else if (x.status === 'doing') btns = '<button class="btn ok" data-a="st:' + esc(x.id) + ':done">' + t('✅ Готово') + '</button>';
+    else btns = '<button class="btn warn" data-a="st:' + esc(x.id) + ':doing">' + t('↩ Вернуть в работу') + '</button>';
+  }
+  return '<div class="card' + (late ? ' late' : '') + (x.status === 'done' ? ' done' : '') + '">' + tags + '<div class="ttl">' + esc(x.title) + '</div>' +
+    (x.description ? '<div class="desc">' + esc(x.description) + '</div>' : '') + (meta ? '<div class="meta">' + meta + '</div>' : '') +
+    (btns ? '<div class="row">' + btns + '</div>' : '') + '</div>';
+}
+async function setStatus(id, status) {
+  try {
+    await call('app_status', {taskId: id, status: status}, 'Сохраняю…');
+    const x = S.tasks.find(k => k.id === id);
+    if (x) { x.status = status; if (status === 'done') x.statusBy = S.me.name; }
+    render();
+    toast(t(status === 'done' ? 'Отмечено: Готово' : x && status === 'doing' && F.wasDone ? 'Задача снова открыта' : 'Отмечено: В работе'));
+  } catch (e) {
+    if (e.kind === 'auth' || e.kind === 'net') return;
+    if (e.kind === 'no_task') load(true);
+    dialog('<div class="big-bad">' + t('Ошибка') + '</div><div class="msg">' + esc(t(e.message)) + '</div>', [[t('Понятно'), 'pri', 1]]);
+  }
+}
+
+// мои задачи
+function vMy() {
+  const f = F.myf || 'open';
+  const mine = S.tasks.filter(x => x.assigneeId === S.me.id);
+  const open = mine.filter(x => x.status !== 'done'), done = mine.filter(x => x.status === 'done');
+  const list = f === 'open' ? sortTasks(open) : done;
+  return (S.me.isManager ? '' : whoLine()) +
+    '<div class="chips"><button class="chip' + (f === 'open' ? ' on' : '') + '" data-a="myf:open">' + t('Открытые') + '<span class="n">' + open.length + '</span></button>' +
+    '<button class="chip' + (f === 'done' ? ' on' : '') + '" data-a="myf:done">' + t('Готово') + '<span class="n">' + done.length + '</span></button></div>' +
+    (list.length ? list.map(x => taskCard(x, false)).join('') : '<div class="empty">' + t(f === 'open' ? 'Открытых задач нет 🎉' : 'Выполненных за 3 дня нет.') + '</div>') + updLine();
+}
+
+// задачи команды (руководитель)
+function vAll() {
+  const f = F.allf || 'open', who = F.allw || '';
+  let list = S.tasks.filter(x => !who || x.assigneeId === who);
+  const cnt = {open: list.filter(x => x.status !== 'done').length, late: list.filter(isLate).length, done: list.filter(x => x.status === 'done').length};
+  list = list.filter(x => f === 'open' ? x.status !== 'done' : f === 'late' ? isLate(x) : x.status === 'done');
+  const people = S.staff.filter(p => S.tasks.some(x => x.assigneeId === p.id));
+  let h = '<div class="chips">' + [['open', 'Открытые'], ['late', 'Просрочено'], ['done', 'Готово']].map(([k, l]) =>
+    '<button class="chip' + (f === k ? ' on' : '') + '" data-a="allf:' + k + '">' + t(l) + '<span class="n">' + cnt[k] + '</span></button>').join('') + '</div>' +
+    '<div class="chips"><button class="chip' + (!who ? ' on' : '') + '" data-a="allw:">' + t('Все') + '</button>' +
+    people.map(p => '<button class="chip' + (who === p.id ? ' on' : '') + '" data-a="allw:' + esc(p.id) + '">' + esc(p.name) + '</button>').join('') + '</div>';
+  if (!list.length) return h + '<div class="empty">' + t('Задач нет.') + '</div>' + updLine();
+  if (who) return h + sortTasks(list).map(x => taskCard(x, false)).join('') + updLine();
+  const groups = {};
+  sortTasks(list).forEach(x => { const k = x.assigneeName || t('Без исполнителя'); (groups[k] = groups[k] || []).push(x); });
+  return h + Object.keys(groups).sort((a, b) => a.localeCompare(b, 'ru')).map(k =>
+    '<div class="grp"><span>👤 ' + esc(k) + '</span><span>' + groups[k].length + '</span></div>' + groups[k].map(x => taskCard(x, false)).join('')).join('') + updLine();
+}
+
+// поставить задачу (руководитель)
+function vNew() {
+  const N = F.n || (F.n = {who: '', title: '', desc: '', due: '', pri: 'mid'});
+  const dueOpts = [[today(), 'Сегодня'], [plusDays(1), 'Завтра'], [plusDays(7), 'Через неделю'], ['', 'Без срока']];
+  const custom = N.due && !dueOpts.some(d => d[0] === N.due);
+  return '<div class="card"><div class="lbl">1. ' + t('Кому') + '</div>' +
+    S.staff.map(p => '<button class="opt' + (N.who === p.id ? ' on' : '') + '" data-a="nwho:' + esc(p.id) + '"><span><div class="nm">' + esc(p.name) + '</div><div class="sub">' +
+      esc([p.role, p.hasTg ? '' : t('нет Telegram — увидит только в приложении')].filter(Boolean).join(' · ')) + '</div></span><span class="mk">' + (N.who === p.id ? '✓' : '') + '</span></button>').join('') + '</div>' +
+    '<div class="card"><div class="lbl">2. ' + t('Что сделать') + '</div><textarea class="f" id="n-title" maxlength="200" placeholder="' + esc(t('Например: принять молоко от поставщика и проверить жирность')) + '">' + esc(N.title) + '</textarea>' +
+    '<div class="lbl" style="margin-top:14px">' + t('Подробности') + ' <span class="hint">(' + t('необязательно') + ')</span></div><textarea class="f" id="n-desc" maxlength="2000" style="min-height:80px">' + esc(N.desc) + '</textarea></div>' +
+    '<div class="card"><div class="lbl">3. ' + t('Срок') + '</div><div class="chips" style="margin-bottom:10px">' +
+    dueOpts.map(([v, l]) => '<button class="chip' + (N.due === v && !custom ? ' on' : '') + '" data-a="ndue:' + v + '">' + t(l) + '</button>').join('') + '</div>' +
+    '<input class="f" type="date" id="n-date" value="' + esc(custom ? N.due : '') + '" min="' + today() + '" aria-label="' + t('Другая дата') + '"></div>' +
+    '<div class="card"><div class="lbl">4. ' + t('Важность') + '</div><div class="chips" style="margin:0">' +
+    ['high', 'mid', 'low'].map(k => '<button class="chip' + (N.pri === k ? ' on' : '') + '" data-a="npri:' + k + '">' + t(PRI[k][0]) + '</button>').join('') + '</div></div>' +
+    '<button class="btn ok wide" style="min-height:76px" data-a="ncreate">' + t('Поставить задачу') + '</button>';
+}
+function keepNew() { const N = F.n; if (!N) return; const a = $('#n-title'), b = $('#n-desc'), c = $('#n-date'); if (a) N.title = a.value; if (b) N.desc = b.value; if (c && c.value) N.due = c.value; }
+async function createTask() {
+  keepNew();
+  const N = F.n;
+  const err = !N.who ? 'Выберите, кому поставить задачу.' : !N.title.trim() ? 'Напишите, что нужно сделать.' : '';
+  if (err) return dialog('<div class="msg">' + t(err) + '</div>', [[t('Понятно'), 'pri', 1]]);
+  try {
+    const j = await call('app_create', {assigneeId: N.who, title: N.title.trim(), description: N.desc.trim(), due: N.due, priority: N.pri}, 'Сохраняю…');
+    S.tasks.push(j.task);
+    const name = j.task.assigneeName;
+    F.n = null;
+    const again = await dialog('<div class="big-ok">✅ ' + t('Задача поставлена') + '</div><div class="msg"><b>' + esc(name) + '</b> ' + t(j.telegram ? 'получит её в Telegram и увидит в приложении.' : 'увидит её в приложении.') + '</div>',
+      [[t('Ещё задачу'), '', 1], [t('К задачам'), 'pri', 0]]);
+    if (again) { SCR = 'new'; render(); window.scrollTo(0, 0); } else { SCR = 'all'; F.allf = 'open'; F.allw = ''; render(); }
+  } catch (e) {
+    if (e.kind === 'auth' || e.kind === 'net') return;
+    dialog('<div class="big-bad">' + t('Ошибка') + '</div><div class="msg">' + esc(t(e.message)) + '</div>', [[t('Понятно'), 'pri', 1]]);
+  }
+}
+
+// рассылка (руководитель)
+function vBc() {
+  const B = F.b || (F.b = {text: '', sel: []});
+  const people = S.staff.filter(p => p.hasTg);
+  return '<div class="card"><div class="lbl">' + t('Текст') + '</div><textarea class="f" id="b-text" maxlength="3500" placeholder="' + esc(t('Например: завтра в 9:00 инвентаризация склада. Всем быть к 8:45.')) + '">' + esc(B.text) + '</textarea></div>' +
+    '<div class="card"><div class="lbl">' + t('Получатели') + ': ' + B.sel.length + '</div><div class="chips"><button class="chip" data-a="ball">' + t('Всем') + '</button><button class="chip" data-a="bnone">' + t('Снять всё') + '</button></div>' +
+    people.map(p => '<button class="opt' + (B.sel.indexOf(p.id) >= 0 ? ' on' : '') + '" data-a="bpick:' + esc(p.id) + '"><span><div class="nm">' + esc(p.name) + '</div>' + (p.role ? '<div class="sub">' + esc(p.role) + '</div>' : '') + '</span><span class="mk">' + (B.sel.indexOf(p.id) >= 0 ? '✓' : '') + '</span></button>').join('') +
+    '<div class="hint">' + t('Сообщение придёт сотрудникам в бот задач LAZA. Сотрудники без Telegram id в списке не показаны.') + '</div></div>' +
+    '<button class="btn pri wide" style="min-height:76px" data-a="bsend">📢 ' + t('Отправить в Telegram') + '</button>';
+}
+function keepBc() { const a = $('#b-text'); if (a && F.b) F.b.text = a.value; }
+async function sendBc() {
+  keepBc();
+  const B = F.b;
+  const err = !B.text.trim() ? 'Напишите текст сообщения.' : !B.sel.length ? 'Выберите получателей.' : '';
+  if (err) return dialog('<div class="msg">' + t(err) + '</div>', [[t('Понятно'), 'pri', 1]]);
+  try {
+    const j = await call('app_broadcast', {text: B.text.trim(), staffIds: B.sel}, 'Отправляю…');
+    F.b = null; SCR = 'home'; render();
+    dialog('<div class="big-ok">✅ ' + t('Отправлено') + '</div><div class="msg">' + t('Бот задач разошлёт сообщение в течение 20 секунд. Получателей:') + ' ' + j.count + '</div>', [[t('Понятно'), 'pri', 1]]);
+  } catch (e) {
+    if (e.kind === 'auth' || e.kind === 'net') return;
+    dialog('<div class="big-bad">' + t('Ошибка') + '</div><div class="msg">' + esc(t(e.message)) + '</div>', [[t('Понятно'), 'pri', 1]]);
+  }
+}
+
+/* ---------------- нажатия ---------------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el || el.disabled) return;
+  const a = el.dataset.a, i = a.indexOf(':'), cmd = i < 0 ? a : a.slice(0, i), arg = i < 0 ? '' : a.slice(i + 1);
+  if (SCR === 'new') keepNew();
+  if (SCR === 'bc') keepBc();
+  switch (cmd) {
+    case 'lang': setLang(LANG === 'uz' ? 'ru' : 'uz'); break;
+    case 'go': SCR = arg; window.scrollTo(0, 0); render(); if (arg !== 'new' && arg !== 'bc' && Date.now() - S.at > 20000) load(true); break;
+    case 'refresh': if (SCR === 'login') { S.people = null; render(); } else load(false); break;
+    case 'retry': if (F.offLogin) { F = {}; S.people = null; SCR = 'login'; render(); } else { SCR = 'start'; render(); load(); } break;
+    case 'retry-people': S.people = null; render(); break;
+    case 'logout': logout(); break;
+    case 'who': F.who = arg; F.pin = ''; render(); window.scrollTo(0, 0); break;
+    case 'pin':
+      F.pin = F.pin || '';
+      if (arg === 'go') { if (F.pin.length >= 4) doLogin(); return; }
+      if (arg === 'del') F.pin = F.pin.slice(0, -1); else if (arg === 'clr') F.pin = ''; else if (F.pin.length < 6) F.pin += arg;
+      render(); break;
+    case 'st': { const j = arg.lastIndexOf(':'), id = arg.slice(0, j), st = arg.slice(j + 1); const x = S.tasks.find(k => k.id === id); F.wasDone = x && x.status === 'done'; setStatus(id, st); break; }
+    case 'myf': F.myf = arg; render(); break;
+    case 'allf': F.allf = arg; render(); break;
+    case 'allw': F.allw = arg; render(); break;
+    case 'nwho': F.n.who = arg; render(); break;
+    case 'ndue': { F.n.due = arg; const c = $('#n-date'); if (c) c.value = ''; render(); break; }
+    case 'npri': F.n.pri = arg; render(); break;
+    case 'ncreate': createTask(); break;
+    case 'bpick': { const s = F.b.sel, k = s.indexOf(arg); if (k >= 0) s.splice(k, 1); else s.push(arg); render(); break; }
+    case 'ball': F.b.sel = S.staff.filter(p => p.hasTg).map(p => p.id); render(); break;
+    case 'bnone': F.b.sel = []; render(); break;
+    case 'bsend': sendBc(); break;
+  }
+});
+document.addEventListener('change', e => { if (e.target.id === 'n-date' && F.n) { F.n.due = e.target.value || ''; render(); } });
+// ПИН с клавиатуры компьютера
+document.addEventListener('keydown', e => {
+  if (SCR !== 'login' || !F.who || $('#layer').innerHTML) return;
+  if (/^\d$/.test(e.key) && (F.pin || '').length < 6) { F.pin = (F.pin || '') + e.key; render(); }
+  else if (e.key === 'Backspace') { F.pin = (F.pin || '').slice(0, -1); render(); }
+  else if (e.key === 'Enter' && (F.pin || '').length >= 4) doLogin();
+});
+
+/* ---------------- запуск ---------------- */
+document.documentElement.lang = LANG; if (LANG === 'uz') document.title = 'LAZA vazifalar';
+render();
+if (S.token) load();
+setInterval(() => { if (document.visibilityState === 'visible' && S.token && ['home', 'my', 'all'].indexOf(SCR) >= 0) load(true); }, CFG.REFRESH_SEC * 1000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.token && Date.now() - S.at > 30000 && ['home', 'my', 'all'].indexOf(SCR) >= 0) load(true); });
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', {scope: './'}).catch(() => {}));
+</script>
+</body>
+</html>
