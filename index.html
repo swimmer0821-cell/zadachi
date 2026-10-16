@@ -92,6 +92,17 @@ const CFG = {
   .msg{font-size:19px;margin-bottom:16px}
   .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#13222a;color:#fff;padding:14px 18px;border-radius:14px;z-index:30;font-size:18px;font-weight:600;max-width:calc(100% - 28px);text-align:center}
   .upd{font-size:15px;color:var(--muted);text-align:center;margin-top:18px}
+  .tiles.six{grid-template-columns:repeat(2,1fr)}
+  @media (min-width:700px){ .tiles.six{grid-template-columns:repeat(3,1fr)} }
+  .bar{height:10px;border-radius:5px;background:#e3e7ee;overflow:hidden;margin:6px 0 8px}
+  .bar i{display:block;height:100%;background:var(--ok)}
+  .pcard{display:block;width:100%;text-align:left;background:var(--card);border-radius:16px;border:2px solid var(--line);padding:16px;margin-bottom:14px}
+  .pcard:active{border-color:var(--pri);background:var(--pri-bg)}
+  .pcard .nm{font-size:21px;font-weight:800;margin:4px 0}
+  .fld{margin-bottom:14px}
+  .fld label{display:block;font-size:17px;font-weight:700;color:var(--muted);margin-bottom:6px}
+  .btn.small{min-height:48px;font-size:17px;padding:6px 14px}
+  .btn.danger{border-color:var(--bad);color:var(--bad)}
 </style>
 </head>
 <body>
@@ -146,7 +157,26 @@ const UZ = {
   'Отмечено: В работе': 'Belgilandi: Jarayonda', 'Отмечено: Готово': 'Belgilandi: Bajarildi', 'Задача снова открыта': 'Vazifa qayta ochildi',
   'Обновлено': 'Yangilandi', 'Задачи от CRM обновляются, пока CRM открыта на компьютере.': "CRM'dan vazifalar CRM kompyuterda ochiq bo'lganda yangilanadi.",
   'руководитель': 'rahbar', 'откр.': 'ochiq', 'просроч.': "muddati o'tgan", 'Кто сделал': 'Kim bajardi',
-  'Сотрудник не найден. Обновите список.': 'Xodim topilmadi. Roʻyxatni yangilang.'
+  'Сотрудник не найден. Обновите список.': 'Xodim topilmadi. Roʻyxatni yangilang.',
+  'Пока никому не задан ПИН. Руководитель задаёт ПИН в приложении: «Команда» → сотрудник.': "Hali hech kimga PIN berilmagan. Rahbar PINni ilovada beradi: «Jamoa» → xodim.",
+  'Проекты': 'Loyihalar', 'Команда': 'Jamoa', 'Проект ': 'Loyiha ', 'Новый проект': 'Yangi loyiha', '+ Новый проект': '+ Yangi loyiha',
+  'Изменить проект': "Loyihani o'zgartirish", 'Название': 'Nomi', 'Цель и описание': 'Maqsad va tavsif', 'Дедлайн': 'Muddat',
+  'Статус': 'Holat', 'Активен': 'Faol', 'На паузе': "To'xtatilgan", 'Завершён': 'Yakunlangan',
+  'Проектов пока нет. Проект объединяет задачи с общей целью, например «Сертификация курта».': "Hozircha loyihalar yo'q. Loyiha umumiy maqsadli vazifalarni birlashtiradi, masalan «Kurt sertifikatsiyasi».",
+  'задач': 'vazifa', 'выполнено': 'bajarildi', '+ Задача в проект': "+ Loyihaga vazifa", '✏️ Изменить': "✏️ O'zgartirish",
+  'Задач в проекте пока нет.': "Loyihada hozircha vazifalar yo'q.", 'Удалить проект': "Loyihani o'chirish", 'Удалить задачу': "Vazifani o'chirish",
+  'Удалить? Это нельзя отменить.': "O'chirilsinmi? Buni qaytarib bo'lmaydi.", 'Удалить': "O'chirish", 'Сохранить': 'Saqlash',
+  'Задачи проекта останутся, но без проекта.': 'Loyiha vazifalari qoladi, lekin loyihasiz.', 'Сохранено': 'Saqlandi', 'Удалено': "O'chirildi",
+  'Укажите название.': 'Nomini kiriting.', 'Изменить задачу': "Vazifani o'zgartirish", 'Без проекта': 'Loyihasiz',
+  '+ Добавить сотрудника': "+ Xodim qo'shish", 'Сотрудник': 'Xodim', 'Новый сотрудник': 'Yangi xodim', 'Имя': 'Ism', 'Должность': 'Lavozim', 'Телефон': 'Telefon',
+  'Telegram id': 'Telegram id', 'ПИН для входа': 'Kirish uchun PIN', '4–6 цифр': '4–6 raqam', 'задан · оставьте пустым': "berilgan · bo'sh qoldiring",
+  'Права': 'Huquqlar', 'Руководитель': 'Rahbar', 'Сотрудник (только свои задачи)': "Xodim (faqat o'z vazifalari)",
+  'Работает': 'Ishlaydi', 'Не работает': 'Ishlamaydi', 'нет Telegram': "Telegram yo'q", 'нет ПИНа': "PIN yo'q", 'есть ПИН': 'PIN bor', 'не работает': 'ishlamaydi',
+  'Сотрудник открывает бота задач LAZA и нажимает «Старт» — бот покажет его Telegram id. Без id задачи приходят только в приложение.': "Xodim LAZA vazifalar botini ochib «Start»ni bosadi — bot uning Telegram id'sini ko'rsatadi. Id bo'lmasa, vazifalar faqat ilovaga keladi.",
+  'Без ПИНа сотрудник не сможет войти в приложение. Новый ПИН заменит старый.': "PINsiz xodim ilovaga kira olmaydi. Yangi PIN eskisining o'rniga o'tadi.",
+  'Telegram id — только цифры, например 7183572915.': 'Telegram id — faqat raqamlar, masalan 7183572915.', 'ПИН — от 4 до 6 цифр.': 'PIN — 4 dan 6 gacha raqam.',
+  'Себе нельзя снять права руководителя или поставить «Не работает».': "O'zingizdan rahbar huquqini olib bo'lmaydi yoki «Ishlamaydi» qilib bo'lmaydi.",
+  'Ваш ПИН изменён. Войдите с новым ПИНом.': "PIN o'zgartirildi. Yangi PIN bilan kiring.", 'Укажите имя.': 'Ismni kiriting.'
 };
 const t = s => LANG === 'uz' ? (UZ[s] || s) : s;
 const MON = {ru: ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'], uz: ['yan', 'fev', 'mar', 'apr', 'may', 'iyun', 'iyul', 'avg', 'sen', 'okt', 'noy', 'dek']};
@@ -160,7 +190,7 @@ function dueText(d) {
 function setLang(l) { LANG = l; ls('zadachi_lang', l); document.documentElement.lang = l; document.title = l === 'uz' ? 'LAZA vazifalar' : 'Задачи LAZA'; render(); }
 
 /* ---------------- данные ---------------- */
-const S = {token: ls('zadachi_token') || '', me: null, tasks: [], staff: [], at: 0, people: null};
+const S = {token: ls('zadachi_token') || '', me: null, tasks: [], staff: [], projects: [], at: 0, people: null};
 try { S.me = JSON.parse(ls('zadachi_me') || 'null'); } catch (e) {}
 let SCR = S.token ? 'start' : 'login';
 let F = {};
@@ -170,8 +200,11 @@ const isLate = x => x.status !== 'done' && x.due && x.due < today();
 const ERR = {
   bad_pin: 'Неверный ПИН.', locked: 'Слишком много неверных ПИНов. Подождите 10 минут.', auth: 'Вход устарел или ПИН сменили. Войдите снова.',
   forbidden: 'Нет прав на это действие.', no_task: 'Задача не найдена — список обновлён.', no_title: 'Напишите, что нужно сделать.',
-  no_text: 'Напишите текст сообщения.', no_recipients: 'Выберите получателей.', no_user: 'Сотрудник не найден. Обновите список.'
+  no_text: 'Напишите текст сообщения.', no_recipients: 'Выберите получателей.', no_user: 'Сотрудник не найден. Обновите список.',
+  no_name: 'Укажите название.', bad_tg: 'Telegram id — только цифры, например 7183572915.', bad_pin_format: 'ПИН — от 4 до 6 цифр.',
+  self_lock: 'Себе нельзя снять права руководителя или поставить «Не работает».', no_project: 'Задача не найдена — список обновлён.'
 };
+const PS = {active: ['Активен', 'pri'], paused: ['На паузе', 'warn'], done: ['Завершён', 'ok']};
 
 /* ---------------- связь с мостом ---------------- */
 async function api(action, data) {
@@ -209,7 +242,7 @@ async function load(quiet) {
     let j;
     try { j = await api('app_data'); }
     catch (e) { if (e.kind !== 'net') throw e; await new Promise(r => setTimeout(r, 2000)); j = quiet ? await api('app_data') : await call('app_data', null, 'Загрузка…'); }
-    S.me = j.me; S.tasks = j.tasks || []; S.staff = j.staff || []; S.at = Date.now();
+    S.me = j.me; S.tasks = j.tasks || []; S.staff = j.staff || []; S.projects = j.projects || []; S.at = Date.now();
     ls('zadachi_me', JSON.stringify(j.me));
     if (SCR === 'start') SCR = S.me.isManager ? 'home' : 'my';
     render();
@@ -220,7 +253,7 @@ async function load(quiet) {
   }
 }
 function logout(msg) {
-  S.token = ''; S.me = null; S.tasks = []; S.staff = []; ls('zadachi_token', null); ls('zadachi_me', null);
+  S.token = ''; S.me = null; S.tasks = []; S.staff = []; S.projects = []; ls('zadachi_token', null); ls('zadachi_me', null);
   SCR = 'login'; F = {}; S.people = null; $('#toast').innerHTML = ''; render();
   if (msg) dialog('<div class="msg">' + esc(msg) + '</div>', [[t('Понятно'), 'pri', 1]]);
 }
@@ -238,14 +271,29 @@ function dialog(html, btns) {
 function toast(m) { const r = $('#toast'); r.innerHTML = '<div class="toast" role="status">' + esc(m) + '</div>'; clearTimeout(toast.h); toast.h = setTimeout(() => r.innerHTML = '', 2600); }
 
 /* ---------------- экраны ---------------- */
-const TITLE = {login: 'Задачи', start: 'Задачи', offline: 'Задачи', home: 'Задачи', my: 'Мои задачи', all: 'Задачи команды', new: 'Поставить задачу', bc: 'Рассылка'};
+const TITLE = {login: 'Задачи', start: 'Задачи', offline: 'Задачи', home: 'Задачи', my: 'Мои задачи', all: 'Задачи команды', new: 'Поставить задачу',
+  bc: 'Рассылка', proj: 'Проекты', projv: 'Проект ', projf: 'Проект ', team: 'Команда', staff: 'Сотрудник'};
+// куда ведёт «←»
+function backOf() {
+  if (SCR === 'projv') return 'proj';
+  if (SCR === 'projf') return F.p && F.p.id ? 'projv' : 'proj';
+  if (SCR === 'staff') return 'team';
+  if (SCR === 'new') return F.ret || 'home';
+  return 'home';
+}
 function render() {
-  const back = S.me && S.me.isManager && ['my', 'all', 'new', 'bc'].indexOf(SCR) >= 0;
-  const top = '<div class="top">' + (back ? '<button class="tb" data-a="go:home" aria-label="' + t('Назад') + '">←</button>' : '') +
-    '<h1>' + esc(t(TITLE[SCR] || 'Задачи')) + '</h1>' +
+  const back = S.me && S.me.isManager && ['my', 'all', 'new', 'bc', 'proj', 'projv', 'projf', 'team', 'staff'].indexOf(SCR) >= 0;
+  let title = t(TITLE[SCR] || 'Задачи');
+  if (SCR === 'new' && F.n && F.n.id) title = t('Изменить задачу');
+  if (SCR === 'projv') { const pr = S.projects.find(x => x.id === F.pid); title = pr ? pr.name : t('Проекты'); }
+  if (SCR === 'projf') title = t(F.p && F.p.id ? 'Изменить проект' : 'Новый проект');
+  if (SCR === 'staff') title = t(F.s && F.s.id ? 'Сотрудник' : 'Новый сотрудник');
+  const top = '<div class="top">' + (back ? '<button class="tb" data-a="back" aria-label="' + t('Назад') + '">←</button>' : '') +
+    '<h1>' + esc(title) + '</h1>' +
     (S.token && SCR !== 'login' ? '<button class="tb" data-a="refresh" aria-label="↻">↻</button>' : '') +
     '<button class="tb" data-a="lang" aria-label="Til / Язык">' + (LANG === 'uz' ? 'RU' : 'UZ') + '</button></div>';
-  const body = {login: vLogin, start: vStart, offline: vOffline, home: vHome, my: vMy, all: vAll, new: vNew, bc: vBc}[SCR]();
+  const body = {login: vLogin, start: vStart, offline: vOffline, home: vHome, my: vMy, all: vAll, new: vNew, bc: vBc,
+    proj: vProj, projv: vProjView, projf: vProjForm, team: vTeam, staff: vStaffForm}[SCR]();
   $('#app').innerHTML = top + '<div class="wrap">' + body + '</div>';
 }
 function whoLine() {
@@ -256,7 +304,7 @@ function whoLine() {
 function updLine() {
   if (!S.at) return '';
   const tm = new Date(S.at).toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'});
-  return '<div class="upd">' + t('Обновлено') + ' ' + tm + '. ' + t('Задачи от CRM обновляются, пока CRM открыта на компьютере.') + '</div>';
+  return '<div class="upd">' + t('Обновлено') + ' ' + tm + '</div>';
 }
 function vStart() { return '<div class="center" style="padding-top:60px"><div class="spin"></div><div class="msg">' + t('Загрузка…') + '</div></div>'; }
 function vOffline() { return '<div class="card center"><div class="big-bad">' + t('Ошибка') + '</div><div class="msg">' + t('Нет связи с интернетом.') + '</div><button class="btn pri wide" data-a="retry">' + t('Повторить') + '</button></div>'; }
@@ -268,7 +316,7 @@ function vLogin() {
     return vStart();
   }
   if (!F.who) {
-    if (!S.people.length) return '<div class="card"><div class="msg">' + t('Пока никому не задан ПИН. Руководитель задаёт ПИН в CRM → «Команда» → карточка сотрудника.') + '</div><button class="btn wide" data-a="retry-people">↻ ' + t('Повторить') + '</button></div>';
+    if (!S.people.length) return '<div class="card"><div class="msg">' + t('Пока никому не задан ПИН. Руководитель задаёт ПИН в приложении: «Команда» → сотрудник.') + '</div><button class="btn wide" data-a="retry-people">↻ ' + t('Повторить') + '</button></div>';
     const last = ls('zadachi_last');
     return '<div class="lbl" style="margin-left:4px">' + t('Кто вы?') + '</div>' + S.people.map(p =>
       '<button class="opt' + (p.id === last ? ' on' : '') + '" data-a="who:' + esc(p.id) + '"><span><div class="nm">' + esc(p.name) + '</div>' + (p.role ? '<div class="sub">' + esc(p.role) + '</div>' : '') + '</span><span class="mk">›</span></button>').join('');
@@ -312,10 +360,13 @@ function vHome() {
   const mine = S.tasks.filter(x => x.assigneeId === S.me.id && x.status !== 'done');
   const open = S.tasks.filter(x => x.status !== 'done');
   const late = open.filter(isLate).length;
-  return whoLine() + '<div class="tiles">' +
+  const pa = S.projects.filter(p => p.status !== 'done').length;
+  return whoLine() + '<div class="tiles six">' +
     tile('go:my', '📋', 'Мои задачи', mine.length + ' ' + t('откр.'), mine.some(isLate)) +
     tile('go:all', '👥', 'Задачи команды', open.length + ' ' + t('откр.') + (late ? ' · ' + late + ' ' + t('просроч.') : ''), late > 0) +
-    tile('go:new', '➕', 'Поставить задачу', '') +
+    tile('newtask:', '➕', 'Поставить задачу', '') +
+    tile('go:proj', '📁', 'Проекты', pa ? String(pa) : '') +
+    tile('go:team', '🧑‍🍳', 'Команда', String(S.staff.filter(x => x.active).length)) +
     tile('go:bc', '📢', 'Рассылка', '') + '</div>' + updLine();
 }
 function tile(a, ic, title, sub, bad) {
@@ -328,6 +379,7 @@ function sortTasks(list) {
   return list.sort((a, b) => (isLate(b) - isLate(a)) || ((a.due || '9') < (b.due || '9') ? -1 : (a.due || '9') > (b.due || '9') ? 1 : 0) || (pr[a.priority] ?? 1) - (pr[b.priority] ?? 1));
 }
 function taskCard(x, showWho) {
+  if (SCR === 'projv') showWho = true;
   const st = ST[x.status] || ST.todo, pr = PRI[x.priority] || PRI.mid, late = isLate(x);
   const tags = '<div class="tags"><span class="tag ' + st[1] + '">' + t(st[0]) + '</span>' +
     (x.priority === 'high' ? '<span class="tag bad">' + t(pr[0]) + '</span>' : '') +
@@ -341,7 +393,8 @@ function taskCard(x, showWho) {
     else if (x.status === 'doing') btns = '<button class="btn ok" data-a="st:' + esc(x.id) + ':done">' + t('✅ Готово') + '</button>';
     else btns = '<button class="btn warn" data-a="st:' + esc(x.id) + ':doing">' + t('↩ Вернуть в работу') + '</button>';
   }
-  return '<div class="card' + (late ? ' late' : '') + (x.status === 'done' ? ' done' : '') + '">' + tags + '<div class="ttl">' + esc(x.title) + '</div>' +
+  const edit = S.me.isManager ? '<button class="btn small" style="float:right;margin:-4px 0 6px 8px" data-a="edittask:' + esc(x.id) + '">' + t('✏️ Изменить') + '</button>' : '';
+  return '<div class="card' + (late ? ' late' : '') + (x.status === 'done' ? ' done' : '') + '">' + edit + tags + '<div class="ttl">' + esc(x.title) + '</div>' +
     (x.description ? '<div class="desc">' + esc(x.description) + '</div>' : '') + (meta ? '<div class="meta">' + meta + '</div>' : '') +
     (btns ? '<div class="row">' + btns + '</div>' : '') + '</div>';
 }
@@ -392,11 +445,12 @@ function vAll() {
 
 // поставить задачу (руководитель)
 function vNew() {
-  const N = F.n || (F.n = {who: '', title: '', desc: '', due: '', pri: 'mid'});
+  const N = F.n || (F.n = {id: '', who: '', title: '', desc: '', due: '', pri: 'mid', proj: ''});
   const dueOpts = [[today(), 'Сегодня'], [plusDays(1), 'Завтра'], [plusDays(7), 'Через неделю'], ['', 'Без срока']];
   const custom = N.due && !dueOpts.some(d => d[0] === N.due);
+  const projs = S.projects.filter(p => p.status !== 'done' || p.id === N.proj);
   return '<div class="card"><div class="lbl">1. ' + t('Кому') + '</div>' +
-    S.staff.map(p => '<button class="opt' + (N.who === p.id ? ' on' : '') + '" data-a="nwho:' + esc(p.id) + '"><span><div class="nm">' + esc(p.name) + '</div><div class="sub">' +
+    S.staff.filter(p => p.active || p.id === N.who).map(p => '<button class="opt' + (N.who === p.id ? ' on' : '') + '" data-a="nwho:' + esc(p.id) + '"><span><div class="nm">' + esc(p.name) + '</div><div class="sub">' +
       esc([p.role, p.hasTg ? '' : t('нет Telegram — увидит только в приложении')].filter(Boolean).join(' · ')) + '</div></span><span class="mk">' + (N.who === p.id ? '✓' : '') + '</span></button>').join('') + '</div>' +
     '<div class="card"><div class="lbl">2. ' + t('Что сделать') + '</div><textarea class="f" id="n-title" maxlength="200" placeholder="' + esc(t('Например: принять молоко от поставщика и проверить жирность')) + '">' + esc(N.title) + '</textarea>' +
     '<div class="lbl" style="margin-top:14px">' + t('Подробности') + ' <span class="hint">(' + t('необязательно') + ')</span></div><textarea class="f" id="n-desc" maxlength="2000" style="min-height:80px">' + esc(N.desc) + '</textarea></div>' +
@@ -405,7 +459,24 @@ function vNew() {
     '<input class="f" type="date" id="n-date" value="' + esc(custom ? N.due : '') + '" min="' + today() + '" aria-label="' + t('Другая дата') + '"></div>' +
     '<div class="card"><div class="lbl">4. ' + t('Важность') + '</div><div class="chips" style="margin:0">' +
     ['high', 'mid', 'low'].map(k => '<button class="chip' + (N.pri === k ? ' on' : '') + '" data-a="npri:' + k + '">' + t(PRI[k][0]) + '</button>').join('') + '</div></div>' +
-    '<button class="btn ok wide" style="min-height:76px" data-a="ncreate">' + t('Поставить задачу') + '</button>';
+    '<div class="card"><div class="lbl">5. ' + t('Проект') + ' <span class="hint">(' + t('необязательно') + ')</span></div><div class="chips" style="margin:0">' +
+    '<button class="chip' + (!N.proj ? ' on' : '') + '" data-a="nproj:">' + t('Без проекта') + '</button>' +
+    projs.map(p => '<button class="chip' + (N.proj === p.id ? ' on' : '') + '" data-a="nproj:' + esc(p.id) + '">' + esc(p.name) + '</button>').join('') + '</div></div>' +
+    '<button class="btn ok wide" style="min-height:76px" data-a="ncreate">' + t(N.id ? 'Сохранить' : 'Поставить задачу') + '</button>' +
+    (N.id ? '<button class="btn danger wide" style="margin-top:14px" data-a="ndel">' + t('Удалить задачу') + '</button>' : '');
+}
+async function deleteTask() {
+  const N = F.n;
+  if (!await dialog('<div class="msg">' + t('Удалить? Это нельзя отменить.') + '</div>', [[t('Отмена'), '', 0], [t('Удалить'), 'danger', 1]])) return;
+  try {
+    await call('app_task_delete', {taskId: N.id}, 'Сохраняю…');
+    S.tasks = S.tasks.filter(x => x.id !== N.id); F.n = null; toast(t('Удалено')); SCR = F.ret || 'all'; render();
+  } catch (e) { if (e.kind !== 'auth' && e.kind !== 'net') dialog('<div class="msg">' + esc(t(e.message)) + '</div>', [[t('Понятно'), 'pri', 1]]); }
+}
+function openTask(id, ret) {
+  const x = S.tasks.find(k => k.id === id); if (!x) return;
+  F.n = {id: x.id, who: x.assigneeId || '', title: x.title || '', desc: x.description || '', due: x.due || '', pri: x.priority || 'mid', proj: x.projectId || ''};
+  F.ret = ret; SCR = 'new'; window.scrollTo(0, 0); render();
 }
 function keepNew() { const N = F.n; if (!N) return; const a = $('#n-title'), b = $('#n-desc'), c = $('#n-date'); if (a) N.title = a.value; if (b) N.desc = b.value; if (c && c.value) N.due = c.value; }
 async function createTask() {
@@ -414,10 +485,13 @@ async function createTask() {
   const err = !N.who ? 'Выберите, кому поставить задачу.' : !N.title.trim() ? 'Напишите, что нужно сделать.' : '';
   if (err) return dialog('<div class="msg">' + t(err) + '</div>', [[t('Понятно'), 'pri', 1]]);
   try {
-    const j = await call('app_create', {assigneeId: N.who, title: N.title.trim(), description: N.desc.trim(), due: N.due, priority: N.pri}, 'Сохраняю…');
-    S.tasks.push(j.task);
+    const j = await call('app_task_save', {task: {id: N.id, assigneeId: N.who, title: N.title.trim(), description: N.desc.trim(), due: N.due, priority: N.pri, projectId: N.proj}}, 'Сохраняю…');
+    const k = S.tasks.findIndex(x => x.id === j.task.id);
+    if (k >= 0) S.tasks[k] = j.task; else S.tasks.push(j.task);
     const name = j.task.assigneeName;
     F.n = null;
+    if (N.id) { toast(t('Сохранено')); SCR = F.ret || 'all'; render(); return; }
+    if (F.ret === 'projv') { toast(t('Задача поставлена')); SCR = 'projv'; render(); return; }
     const again = await dialog('<div class="big-ok">✅ ' + t('Задача поставлена') + '</div><div class="msg"><b>' + esc(name) + '</b> ' + t(j.telegram ? 'получит её в Telegram и увидит в приложении.' : 'увидит её в приложении.') + '</div>',
       [[t('Ещё задачу'), '', 1], [t('К задачам'), 'pri', 0]]);
     if (again) { SCR = 'new'; render(); window.scrollTo(0, 0); } else { SCR = 'all'; F.allf = 'open'; F.allw = ''; render(); }
@@ -430,7 +504,7 @@ async function createTask() {
 // рассылка (руководитель)
 function vBc() {
   const B = F.b || (F.b = {text: '', sel: []});
-  const people = S.staff.filter(p => p.hasTg);
+  const people = S.staff.filter(p => p.hasTg && p.active !== false);
   return '<div class="card"><div class="lbl">' + t('Текст') + '</div><textarea class="f" id="b-text" maxlength="3500" placeholder="' + esc(t('Например: завтра в 9:00 инвентаризация склада. Всем быть к 8:45.')) + '">' + esc(B.text) + '</textarea></div>' +
     '<div class="card"><div class="lbl">' + t('Получатели') + ': ' + B.sel.length + '</div><div class="chips"><button class="chip" data-a="ball">' + t('Всем') + '</button><button class="chip" data-a="bnone">' + t('Снять всё') + '</button></div>' +
     people.map(p => '<button class="opt' + (B.sel.indexOf(p.id) >= 0 ? ' on' : '') + '" data-a="bpick:' + esc(p.id) + '"><span><div class="nm">' + esc(p.name) + '</div>' + (p.role ? '<div class="sub">' + esc(p.role) + '</div>' : '') + '</span><span class="mk">' + (B.sel.indexOf(p.id) >= 0 ? '✓' : '') + '</span></button>').join('') +
@@ -453,15 +527,144 @@ async function sendBc() {
   }
 }
 
+// проекты (руководитель)
+function projStats(id) { const ts = S.tasks.filter(x => x.projectId === id); return {all: ts.length, done: ts.filter(x => x.status === 'done').length, late: ts.filter(isLate).length}; }
+function vProj() {
+  const order = {active: 0, paused: 1, done: 2};
+  const list = [...S.projects].sort((a, b) => (order[a.status] ?? 0) - (order[b.status] ?? 0) || (a.deadline || '9').localeCompare(b.deadline || '9'));
+  let h = '<button class="btn pri wide" style="margin-bottom:14px" data-a="newproj">' + t('+ Новый проект') + '</button>';
+  if (!list.length) return h + '<div class="empty">' + t('Проектов пока нет. Проект объединяет задачи с общей целью, например «Сертификация курта».') + '</div>';
+  return h + list.map(p => {
+    const st = PS[p.status] || PS.active, c = projStats(p.id), lateP = p.status !== 'done' && p.deadline && p.deadline < today();
+    return '<button class="pcard" data-a="projv:' + esc(p.id) + '"><div class="tags"><span class="tag ' + st[1] + '">' + t(st[0]) + '</span>' +
+      (p.deadline ? '<span class="tag ' + (lateP ? 'bad' : '') + '">' + t('Дедлайн') + ': ' + esc(dueText(p.deadline)) + '</span>' : '') +
+      (c.late ? '<span class="tag bad">' + c.late + ' ' + t('просроч.') + '</span>' : '') + '</div>' +
+      '<div class="nm">' + esc(p.name) + '</div><div class="bar"><i style="width:' + (c.all ? Math.round(c.done / c.all * 100) : 0) + '%"></i></div>' +
+      '<div class="meta" style="margin:0">' + c.done + ' / ' + c.all + ' ' + t('выполнено') + '</div></button>';
+  }).join('') + updLine();
+}
+function vProjView() {
+  const p = S.projects.find(x => x.id === F.pid);
+  if (!p) return '<div class="empty">' + t('Задач нет.') + '</div>';
+  const st = PS[p.status] || PS.active, c = projStats(p.id);
+  const ts = S.tasks.filter(x => x.projectId === p.id);
+  const open = sortTasks(ts.filter(x => x.status !== 'done')), done = ts.filter(x => x.status === 'done');
+  return '<div class="card"><div class="tags"><span class="tag ' + st[1] + '">' + t(st[0]) + '</span>' + (p.deadline ? '<span class="tag">' + t('Дедлайн') + ': ' + esc(dueText(p.deadline)) + '</span>' : '') + '</div>' +
+    (p.description ? '<div class="desc">' + esc(p.description) + '</div>' : '') +
+    '<div class="bar"><i style="width:' + (c.all ? Math.round(c.done / c.all * 100) : 0) + '%"></i></div><div class="meta">' + c.done + ' / ' + c.all + ' ' + t('выполнено') + '</div>' +
+    '<div class="row"><button class="btn ok" data-a="newtask:' + esc(p.id) + '">' + t('+ Задача в проект') + '</button><button class="btn" data-a="editproj:' + esc(p.id) + '">' + t('✏️ Изменить') + '</button></div></div>' +
+    (ts.length ? open.map(x => taskCard(x, true)).join('') + done.map(x => taskCard(x, true)).join('') : '<div class="empty">' + t('Задач в проекте пока нет.') + '</div>');
+}
+function vProjForm() {
+  const P = F.p;
+  return '<div class="card"><div class="fld"><label for="p-name">' + t('Название') + '</label><input class="f" id="p-name" maxlength="120" value="' + esc(P.name) + '"></div>' +
+    '<div class="fld"><label for="p-desc">' + t('Цель и описание') + '</label><textarea class="f" id="p-desc" maxlength="2000">' + esc(P.desc) + '</textarea></div>' +
+    '<div class="fld"><label for="p-dl">' + t('Дедлайн') + '</label><input class="f" type="date" id="p-dl" value="' + esc(P.deadline) + '"></div>' +
+    '<div class="fld" style="margin:0"><label>' + t('Статус') + '</label><div class="chips" style="margin:0">' +
+    Object.keys(PS).map(k => '<button class="chip' + (P.status === k ? ' on' : '') + '" data-a="pst:' + k + '">' + t(PS[k][0]) + '</button>').join('') + '</div></div></div>' +
+    '<button class="btn ok wide" style="min-height:76px" data-a="psave">' + t('Сохранить') + '</button>' +
+    (P.id ? '<button class="btn danger wide" style="margin-top:14px" data-a="pdel">' + t('Удалить проект') + '</button>' : '');
+}
+function keepProj() { const P = F.p; if (!P) return; const a = $('#p-name'), b = $('#p-desc'), c = $('#p-dl'); if (a) P.name = a.value; if (b) P.desc = b.value; if (c) P.deadline = c.value; }
+async function saveProj() {
+  keepProj(); const P = F.p;
+  if (!P.name.trim()) return dialog('<div class="msg">' + t('Укажите название.') + '</div>', [[t('Понятно'), 'pri', 1]]);
+  try {
+    const j = await call('app_project_save', {project: {id: P.id, name: P.name.trim(), description: P.desc.trim(), deadline: P.deadline, status: P.status}}, 'Сохраняю…');
+    const k = S.projects.findIndex(x => x.id === j.project.id);
+    if (k >= 0) S.projects[k] = j.project; else S.projects.push(j.project);
+    S.tasks.forEach(x => { if (x.projectId === j.project.id) x.project = j.project.name; });
+    F.pid = j.project.id; F.p = null; SCR = 'projv'; toast(t('Сохранено')); render();
+  } catch (e) { if (e.kind !== 'auth' && e.kind !== 'net') dialog('<div class="msg">' + esc(t(e.message)) + '</div>', [[t('Понятно'), 'pri', 1]]); }
+}
+async function delProj() {
+  if (!await dialog('<div class="msg">' + t('Удалить? Это нельзя отменить.') + ' ' + t('Задачи проекта останутся, но без проекта.') + '</div>', [[t('Отмена'), '', 0], [t('Удалить'), 'danger', 1]])) return;
+  try {
+    await call('app_project_delete', {projectId: F.p.id}, 'Сохраняю…');
+    const id = F.p.id; S.projects = S.projects.filter(x => x.id !== id);
+    S.tasks.forEach(x => { if (x.projectId === id) { x.projectId = ''; x.project = ''; } });
+    F.p = null; SCR = 'proj'; toast(t('Удалено')); render();
+  } catch (e) { if (e.kind !== 'auth' && e.kind !== 'net') dialog('<div class="msg">' + esc(t(e.message)) + '</div>', [[t('Понятно'), 'pri', 1]]); }
+}
+
+// команда (руководитель)
+function vTeam() {
+  const list = [...S.staff].sort((a, b) => (a.active === false) - (b.active === false) || a.name.localeCompare(b.name, 'ru'));
+  return '<button class="btn pri wide" style="margin-bottom:14px" data-a="newstaff">' + t('+ Добавить сотрудника') + '</button>' +
+    list.map(x => {
+      const open = S.tasks.filter(k => k.assigneeId === x.id && k.status !== 'done').length;
+      const tags = [x.isManager ? '<span class="tag pri">' + t('Руководитель') + '</span>' : '',
+        x.hasTg ? '' : '<span class="tag warn">' + t('нет Telegram') + '</span>',
+        x.hasPin ? '' : '<span class="tag">' + t('нет ПИНа') + '</span>',
+        x.active ? '' : '<span class="tag bad">' + t('не работает') + '</span>'].join('');
+      return '<button class="opt' + (x.active ? '' : ' off') + '" data-a="editstaff:' + esc(x.id) + '"><span><div class="nm">' + esc(x.name) + '</div>' +
+        '<div class="sub">' + esc([x.role, open ? open + ' ' + t('откр.') : ''].filter(Boolean).join(' · ')) + '</div>' + (tags ? '<div class="tags" style="margin:6px 0 0">' + tags + '</div>' : '') + '</span><span class="mk">›</span></button>';
+    }).join('') + updLine();
+}
+function vStaffForm() {
+  const X = F.s;
+  const self = X.id === S.me.id;
+  return '<div class="card">' +
+    '<div class="fld"><label for="s-name">' + t('Имя') + '</label><input class="f" id="s-name" maxlength="100" value="' + esc(X.name) + '"></div>' +
+    '<div class="fld"><label for="s-role">' + t('Должность') + '</label><input class="f" id="s-role" maxlength="80" value="' + esc(X.role) + '"></div>' +
+    '<div class="fld"><label for="s-phone">' + t('Телефон') + '</label><input class="f" id="s-phone" type="tel" maxlength="40" value="' + esc(X.phone) + '" placeholder="+998 …"></div>' +
+    '<div class="fld"><label for="s-tg">' + t('Telegram id') + '</label><input class="f" id="s-tg" inputmode="numeric" maxlength="16" value="' + esc(X.tgId) + '" placeholder="7183572915">' +
+    '<div class="hint">' + t('Сотрудник открывает бота задач LAZA и нажимает «Старт» — бот покажет его Telegram id. Без id задачи приходят только в приложение.') + '</div></div>' +
+    '<div class="fld"><label for="s-pin">' + t('ПИН для входа') + '</label><input class="f" id="s-pin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6" placeholder="' + esc(t(X.hasPin ? 'задан · оставьте пустым' : '4–6 цифр')) + '">' +
+    '<div class="hint">' + t('Без ПИНа сотрудник не сможет войти в приложение. Новый ПИН заменит старый.') + '</div></div>' +
+    '<div class="fld"><label>' + t('Права') + '</label><div class="chips" style="margin:0">' +
+    '<button class="chip' + (!X.isManager ? ' on' : '') + '" data-a="smgr:0"' + (self ? ' disabled' : '') + '>' + t('Сотрудник (только свои задачи)') + '</button>' +
+    '<button class="chip' + (X.isManager ? ' on' : '') + '" data-a="smgr:1">' + t('Руководитель') + '</button></div></div>' +
+    '<div class="fld" style="margin:0"><label>' + t('Статус') + '</label><div class="chips" style="margin:0">' +
+    '<button class="chip' + (X.active ? ' on' : '') + '" data-a="sact:1">' + t('Работает') + '</button>' +
+    '<button class="chip' + (!X.active ? ' on' : '') + '" data-a="sact:0"' + (self ? ' disabled' : '') + '>' + t('Не работает') + '</button></div></div></div>' +
+    '<button class="btn ok wide" style="min-height:76px" data-a="ssave">' + t('Сохранить') + '</button>';
+}
+function keepStaff() {
+  const X = F.s; if (!X) return;
+  [['s-name', 'name'], ['s-role', 'role'], ['s-phone', 'phone'], ['s-tg', 'tgId'], ['s-pin', 'pin']].forEach(([id, k]) => { const el = $('#' + id); if (el) X[k] = el.value; });
+}
+async function saveStaff() {
+  keepStaff(); const X = F.s;
+  const tg = (X.tgId || '').replace(/\s/g, ''), pin = (X.pin || '').trim();
+  const err = !X.name.trim() ? 'Укажите имя.' : tg && !/^-?\d{5,15}$/.test(tg) ? 'Telegram id — только цифры, например 7183572915.' : pin && !/^\d{4,6}$/.test(pin) ? 'ПИН — от 4 до 6 цифр.' : '';
+  if (err) return dialog('<div class="msg">' + t(err) + '</div>', [[t('Понятно'), 'pri', 1]]);
+  try {
+    const j = await call('app_staff_save', {staff: {id: X.id, name: X.name.trim(), role: X.role.trim(), phone: X.phone.trim(), tgId: tg, isManager: X.isManager, active: X.active}, pin: pin}, 'Сохраняю…');
+    if (j.relogin) { logout(t('Ваш ПИН изменён. Войдите с новым ПИНом.')); return; }
+    const k = S.staff.findIndex(x => x.id === j.staff.id);
+    if (k >= 0) S.staff[k] = j.staff; else S.staff.push(j.staff);
+    F.s = null; SCR = 'team'; toast(t('Сохранено')); render(); load(true);
+  } catch (e) { if (e.kind !== 'auth' && e.kind !== 'net') dialog('<div class="msg">' + esc(t(e.message)) + '</div>', [[t('Понятно'), 'pri', 1]]); }
+}
+
 /* ---------------- нажатия ---------------- */
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-a]'); if (!el || el.disabled) return;
   const a = el.dataset.a, i = a.indexOf(':'), cmd = i < 0 ? a : a.slice(0, i), arg = i < 0 ? '' : a.slice(i + 1);
   if (SCR === 'new') keepNew();
   if (SCR === 'bc') keepBc();
+  if (SCR === 'projf') keepProj();
+  if (SCR === 'staff') keepStaff();
   switch (cmd) {
+    case 'back': SCR = backOf(); window.scrollTo(0, 0); render(); break;
+    case 'newtask': F.n = {id: '', who: '', title: '', desc: '', due: '', pri: 'mid', proj: arg}; F.ret = arg ? 'projv' : 'home'; SCR = 'new'; window.scrollTo(0, 0); render(); break;
+    case 'edittask': openTask(arg, SCR); break;
+    case 'nproj': F.n.proj = arg; render(); break;
+    case 'ndel': deleteTask(); break;
+    case 'newproj': F.p = {id: '', name: '', desc: '', deadline: '', status: 'active'}; SCR = 'projf'; window.scrollTo(0, 0); render(); break;
+    case 'projv': F.pid = arg; SCR = 'projv'; window.scrollTo(0, 0); render(); break;
+    case 'editproj': { const p = S.projects.find(x => x.id === arg); if (!p) break; F.p = {id: p.id, name: p.name, desc: p.description || '', deadline: p.deadline || '', status: p.status || 'active'}; SCR = 'projf'; window.scrollTo(0, 0); render(); break; }
+    case 'pst': F.p.status = arg; render(); break;
+    case 'psave': saveProj(); break;
+    case 'pdel': delProj(); break;
+    case 'newstaff': F.s = {id: '', name: '', role: '', phone: '', tgId: '', pin: '', isManager: false, active: true, hasPin: false}; SCR = 'staff'; window.scrollTo(0, 0); render(); break;
+    case 'editstaff': { const x = S.staff.find(k => k.id === arg); if (!x) break; F.s = {id: x.id, name: x.name, role: x.role || '', phone: x.phone || '', tgId: x.tgId || '', pin: '', isManager: !!x.isManager, active: x.active !== false, hasPin: x.hasPin}; SCR = 'staff'; window.scrollTo(0, 0); render(); break; }
+    case 'smgr': F.s.isManager = arg === '1'; render(); break;
+    case 'sact': F.s.active = arg === '1'; render(); break;
+    case 'ssave': saveStaff(); break;
     case 'lang': setLang(LANG === 'uz' ? 'ru' : 'uz'); break;
-    case 'go': SCR = arg; window.scrollTo(0, 0); render(); if (arg !== 'new' && arg !== 'bc' && Date.now() - S.at > 20000) load(true); break;
+    case 'go': SCR = arg; window.scrollTo(0, 0); render(); if (arg !== 'bc' && Date.now() - S.at > 20000) load(true); break;
     case 'refresh': if (SCR === 'login') { S.people = null; render(); } else load(false); break;
     case 'retry': if (F.offLogin) { F = {}; S.people = null; SCR = 'login'; render(); } else { SCR = 'start'; render(); load(); } break;
     case 'retry-people': S.people = null; render(); break;
@@ -481,7 +684,7 @@ document.addEventListener('click', e => {
     case 'npri': F.n.pri = arg; render(); break;
     case 'ncreate': createTask(); break;
     case 'bpick': { const s = F.b.sel, k = s.indexOf(arg); if (k >= 0) s.splice(k, 1); else s.push(arg); render(); break; }
-    case 'ball': F.b.sel = S.staff.filter(p => p.hasTg).map(p => p.id); render(); break;
+    case 'ball': F.b.sel = S.staff.filter(p => p.hasTg && p.active !== false).map(p => p.id); render(); break;
     case 'bnone': F.b.sel = []; render(); break;
     case 'bsend': sendBc(); break;
   }
@@ -499,8 +702,9 @@ document.addEventListener('keydown', e => {
 document.documentElement.lang = LANG; if (LANG === 'uz') document.title = 'LAZA vazifalar';
 render();
 if (S.token) load();
-setInterval(() => { if (document.visibilityState === 'visible' && S.token && ['home', 'my', 'all'].indexOf(SCR) >= 0) load(true); }, CFG.REFRESH_SEC * 1000);
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.token && Date.now() - S.at > 30000 && ['home', 'my', 'all'].indexOf(SCR) >= 0) load(true); });
+const LIVE = ['home', 'my', 'all', 'proj', 'projv', 'team'];
+setInterval(() => { if (document.visibilityState === 'visible' && S.token && LIVE.indexOf(SCR) >= 0) load(true); }, CFG.REFRESH_SEC * 1000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.token && Date.now() - S.at > 30000 && LIVE.indexOf(SCR) >= 0) load(true); });
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', {scope: './'}).catch(() => {}));
 </script>
 </body>
