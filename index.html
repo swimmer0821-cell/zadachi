@@ -218,7 +218,7 @@ async function load(quiet) {
 }
 function logout(msg) {
   S.token = ''; S.me = null; S.tasks = []; S.staff = []; ls('zadachi_token', null); ls('zadachi_me', null);
-  SCR = 'login'; F = {}; S.people = null; render();
+  SCR = 'login'; F = {}; S.people = null; $('#toast').innerHTML = ''; render();
   if (msg) dialog('<div class="msg">' + esc(msg) + '</div>', [[t('Понятно'), 'pri', 1]]);
 }
 
