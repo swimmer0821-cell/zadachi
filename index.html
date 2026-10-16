@@ -137,7 +137,7 @@ const UZ = {
   'Сообщение придёт сотрудникам в бот задач LAZA. Сотрудники без Telegram id в списке не показаны.': "Xabar xodimlarga LAZA vazifalar botiga keladi. Telegram id'si yo'q xodimlar ro'yxatda ko'rsatilmagan.",
   'Например: завтра в 9:00 инвентаризация склада. Всем быть к 8:45.': "Masalan: ertaga soat 9:00 da ombor inventarizatsiyasi. Hamma 8:45 gacha kelsin.",
   'Загрузка…': 'Yuklanmoqda…', 'Сохраняю…': 'Saqlanmoqda…', 'Проверяю…': 'Tekshirilmoqda…', 'Отправляю…': 'Yuborilmoqda…',
-  'Понятно': 'Tushunarli', 'Повторить': 'Qayta urinish', 'Отмена': 'Bekor qilish', 'Ошибка': 'Xato',
+  'Сервер занят. Попробуйте ещё раз.': "Server band. Qayta urinib ko'ring.", 'Понятно': 'Tushunarli', 'Повторить': 'Qayta urinish', 'Отмена': 'Bekor qilish', 'Ошибка': 'Xato',
   'Нет связи с интернетом.': "Internet aloqasi yo'q.", 'Сервер не ответил. Проверьте интернет и попробуйте ещё раз.': "Server javob bermadi. Internetni tekshirib, qayta urinib ko'ring.",
   'Неверный ПИН.': "PIN noto'g'ri.", 'Осталось попыток:': 'Qolgan urinishlar:',
   'Слишком много неверных ПИНов. Подождите 10 минут.': "Noto'g'ri PIN juda ko'p kiritildi. 10 daqiqa kuting.",
@@ -184,6 +184,7 @@ async function api(action, data) {
   finally { clearTimeout(timer); }
   let j;
   try { j = await r.json(); } catch (e) { throw mkErr('Сервер не ответил. Проверьте интернет и попробуйте ещё раз.', 'net'); }
+  if (j.error === 'busy') throw mkErr('Сервер занят. Попробуйте ещё раз.', 'net');
   if (!j.ok) { const e = mkErr(ERR[j.error] || j.error || 'Ошибка', j.error === 'auth' ? 'auth' : j.error); e.left = j.left; throw e; }
   return j;
 }
