@@ -206,7 +206,9 @@ async function call(action, data, msg) {
 async function load(quiet) {
   if (!S.token) return;
   try {
-    const j = quiet ? await api('app_data') : await call('app_data', null, 'Загрузка…');
+    let j;
+    try { j = await api('app_data'); }
+    catch (e) { if (e.kind !== 'net') throw e; await new Promise(r => setTimeout(r, 2000)); j = quiet ? await api('app_data') : await call('app_data', null, 'Загрузка…'); }
     S.me = j.me; S.tasks = j.tasks || []; S.staff = j.staff || []; S.at = Date.now();
     ls('zadachi_me', JSON.stringify(j.me));
     if (SCR === 'start') SCR = S.me.isManager ? 'home' : 'my';
@@ -282,8 +284,13 @@ function vLogin() {
     '<div class="hint">' + t('ПИН-код выдаёт руководитель.') + '</div></div>';
 }
 async function loadPeople() {
-  try { const j = await api('app_staff'); S.people = j.staff || []; }
-  catch (e) { F.loading = false; SCR = 'offline'; F.offLogin = true; render(); return; }
+  for (let i = 0; ; i++) {   // Google иногда отвечает не с первого раза — пробуем трижды
+    try { const j = await api('app_staff'); S.people = j.staff || []; break; }
+    catch (e) {
+      if (i < 2) { await new Promise(r => setTimeout(r, 2000)); continue; }
+      F.loading = false; SCR = 'offline'; F.offLogin = true; render(); return;
+    }
+  }
   F.loading = false; render();
 }
 async function doLogin() {
