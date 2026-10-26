@@ -1,6 +1,6 @@
 /* Задачи — работа как приложение. Свои файлы берёт из сети (обновления приходят сразу),
    без сети — из памяти телефона. Запросы к Google (Apps Script) не трогает. */
-const CACHE = 'zadachi-v2';
+const CACHE = 'zadachi-v3';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

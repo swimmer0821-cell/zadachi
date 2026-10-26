@@ -224,10 +224,13 @@ async function api(action, data) {
 function mkErr(m, kind) { const e = new Error(m); e.kind = kind; return e; }
 
 // запрос с индикатором; при обрыве связи — «Повторить»
+// rid — номер запроса: при «Повторить» уходит тот же, и мост не создаст задачу или рассылку второй раз
 async function call(action, data, msg) {
+  const rid = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2);
+  const body = Object.assign({rid: rid}, data || {});
   for (;;) {
     showLoader(msg || 'Загрузка…');
-    try { const j = await api(action, data); hideLayer(); return j; }
+    try { const j = await api(action, body); hideLayer(); return j; }
     catch (e) {
       hideLayer();
       if (e.kind === 'auth') { logout(t(e.message)); throw e; }
